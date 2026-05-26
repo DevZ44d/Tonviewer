@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Tonviewer"
+version = "1.2.0"
+description = "Tonviewer is a Python library that allows you to fetch ( real-time balance of wallet , transactions , price ) data ."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "AhMed", email = "alexcrow221@gmail.com" }
+]
+maintainers = [{ name = "AhMed" }]
+dependencies = [
+    "requests",
+    "colorama",
+    "tonsdk"
+]
+
+[project.urls]
+"Changelog" = "https://github.com/DevZ44d/Tonviewer/blob/main/README.md"
+"Source" = "https://github.com/DevZ44d/Tonviewer"
+"Bug Tracker" = "https://github.com/DevZ44d/Tonviewer/issues"
+"Community" = "https://t.me/PyCodz"
+
+[project.scripts]
+Tonviewer = "Tonviewer.cil:console"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

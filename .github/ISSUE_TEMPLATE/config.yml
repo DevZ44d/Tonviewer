@@ -1,0 +1,12 @@
+blank_issues_enabled: false
+
+contact_links:
+  - name: 💬 Telegram Community Chat
+    url: https://t.me/PyCodz_Chat
+    about: Ask questions and get help from the community
+  - name: 📣 Telegram Channel
+    url: https://t.me/PyCodz
+    about: Follow for updates, releases and announcements
+  - name: 📦 PyPI Package
+    url: https://pypi.org/project/Tonviewer/
+    about: Latest published release

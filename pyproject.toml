@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "Tonviewer"
 version = "1.2.0"
-description = "Tonviewer is a Python library that allows you to fetch ( real-time balance of wallet , transactions , price ) data ."
+description = "Tonviewer is A high-performance Python SDK & CLI for the TON blockchain."
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }

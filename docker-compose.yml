@@ -1,0 +1,57 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Tonviewer — docker-compose.yml
+#  Usage:
+#    docker compose run --rm tonviewer -w "UQ..." -i
+#    docker compose run --rm tonviewer -t "UQ..." -l 5
+#    docker compose run --rm tonviewer -H "<hash>"
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Tonviewer CLI ────────────────────────────────────────────────────────────
+  tonviewer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime           # Use the lean runtime stage only
+
+    image: tonviewer:1.1.10
+
+    container_name: tonviewer
+
+    # Pass CLI arguments after `docker compose run --rm tonviewer`
+    # e.g.:  docker compose run --rm tonviewer -w "UQ..." -i
+    entrypoint: ["Tonviewer"]
+    command: ["--help"]
+
+    environment:
+      # Python runtime flags (no .pyc, unbuffered output)
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+
+    # Mount a local output directory to persist JSON results
+    volumes:
+      - ./output:/app/output:rw
+
+    # No ports needed — CLI tool only
+    # Keeps the container alive only for the duration of the command
+    restart: "no"
+
+    # Security hardening
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+# ─────────────────────────────────────────────
+#  Volumes
+# ─────────────────────────────────────────────
+volumes:
+  output:

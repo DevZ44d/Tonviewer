@@ -1,0 +1,47 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Tonviewer — Publish to PyPI
+#  Triggers : GitHub Release published
+#  Secrets  : PYPI_API_TOKEN  (set in repo Settings → Secrets → Actions)
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+
+  publish:
+    name: Build & Publish
+    runs-on: ubuntu-latest
+    environment: pypi
+
+    permissions:
+      id-token: write   # Required for trusted publishing (OIDC)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install build tools
+        run: pip install build twine
+
+      - name: Build distributions
+        run: python -m build
+
+      - name: Verify distributions
+        run: twine check dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true
+          verbose: true

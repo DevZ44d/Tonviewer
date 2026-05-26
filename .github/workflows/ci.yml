@@ -1,0 +1,102 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Tonviewer — CI Pipeline
+#  Triggers : push to main/dev, any pull request
+#  Jobs     : lint → build → install-check
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+
+  # ── Lint ────────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint (ruff + black)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install lint tools
+        run: pip install ruff black
+
+      - name: Run ruff
+        run: ruff check src/
+
+      - name: Check black formatting
+        run: black --check src/
+
+  # ── Build ───────────────────────────────────────────────────────────────────
+  build:
+    name: Build (sdist + wheel)
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build distributions
+        run: python -m build
+
+      - name: Upload dist artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # ── Install check ───────────────────────────────────────────────────────────
+  install-check:
+    name: Install check (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    needs: build
+
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Download dist artefacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Install wheel
+        run: pip install dist/*.whl httpx beautifulsoup4
+
+      - name: Smoke test — CLI help
+        run: Tonviewer --help
+
+      - name: Smoke test — version flag
+        run: Tonviewer -v

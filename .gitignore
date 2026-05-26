@@ -182,15 +182,9 @@ cython_debug/
 .abstra/
 
 # Visual Studio Code
-<<<<<<< HEAD
 #  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore
 #  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
 #  and can be added to the global gitignore or merged into this file. However, if you prefer,
-=======
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
-#  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
->>>>>>> 5b3efc31ef3ed657ce8ce337dcd5791f8e39f0f5
 #  you could uncomment the following to ignore the entire vscode folder
 # .vscode/
 
@@ -210,8 +204,4 @@ cython_debug/
 # Marimo
 marimo/_static/
 marimo/_lsp/
-<<<<<<< HEAD
 __marimo__/
-=======
-__marimo__/
->>>>>>> 5b3efc31ef3ed657ce8ce337dcd5791f8e39f0f5

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import requests
 import datetime
 import json
@@ -46,6 +45,7 @@ class Transactions:
     _RETRIES     = 3
     _BACKOFF     = 1.5          # seconds multiplied on each retry attempt
 
+    # ── All relay / misc action types ──────────────────────────────────────
     _RELAY_TYPES: frozenset = frozenset({
         "AuctionBid", "SmartContractExec", "ContractDeploy",
         "Subscribe", "UnSubscribe",
@@ -59,7 +59,7 @@ class Transactions:
         "ElectionsDepositStake", "ElectionsRecoverStake",
     })
 
-
+    # ── Action aliases → canonical name ───────────────────────────────────
     _ACTION_MAP: Dict[str, str] = {
         "send":                 "Sent TON",
         "sent":                 "Sent TON",
@@ -113,6 +113,7 @@ class Transactions:
         except Exception:
             self._wallet_raw = self.wallet.lower()
 
+    # ── Address / name helpers ─────────────────────────────────────────────
 
     @staticmethod
     def _to_uq(addr: str) -> str:
@@ -136,6 +137,7 @@ class Transactions:
         addr = info.get("address") or ""
         return name if name else (cls._to_uq(addr) if addr else "")
 
+    # ── Formatting helpers ─────────────────────────────────────────────────
 
     @staticmethod
     def _fmt_time(ts: int) -> str:
@@ -164,6 +166,7 @@ class Transactions:
     def _token_str(self, raw_amount: int, decimals: int, symbol: str) -> str:
         return f"{raw_amount / (10 ** decimals):.6f} {symbol}"
 
+    # ── HTTP with retry + back-off ─────────────────────────────────────────
 
     def _get(self, url: str, params: Optional[Dict] = None) -> Dict:
         last_exc: Exception = RuntimeError("No attempts made")
@@ -178,6 +181,7 @@ class Transactions:
                     time.sleep(self._BACKOFF * (attempt + 1))
         raise last_exc
 
+    # ── Action-specific parsers ────────────────────────────────────────────
 
     def _parse_nft_purchase(self, a: Dict, ts: int) -> Dict:
         p       = a.get("NftPurchase") or {}
@@ -465,6 +469,7 @@ class Transactions:
         if nano: rec["Amount"] = self._price_str(nano, sign)
         return rec
 
+    # ── Main event parser ──────────────────────────────────────────────────
 
     def _parse_event(self, event: Dict) -> Optional[Dict[str, Any]]:
         """
@@ -537,6 +542,7 @@ class Transactions:
 
         return None   # unsupported / unknown event
 
+    # ── Pagination ─────────────────────────────────────────────────────────
 
     def _iter_events(self, limit: int) -> Iterator[Dict]:
         """
@@ -573,6 +579,8 @@ class Transactions:
             before_lt = events[-1].get("lt")
             if not before_lt or len(events) < page_size:
                 break
+
+    # ── Public API ─────────────────────────────────────────────────────────
 
     def get(self, limit: int = 1) -> str:
         """
@@ -654,147 +662,3 @@ class Transactions:
     @classmethod
     def _normalise_action(cls, action: str) -> str:
         return cls._ACTION_MAP.get(action.strip().lower(), action)
-=======
-import requests
-import datetime
-import json
-from typing import List, Dict, Any
-from tonsdk.utils import Address
-from ..dollers import Dollers
-
-
-class Transactions:
-    """
-    Fetch and format TON wallet transactions using TONAPI events.
-    """
-
-    TON_DECIMALS = 1_000_000_000
-    def __init__(self, wallet: str):
-        self.wallet = wallet
-        self.base_url = "https://tonapi.io/v2"
-        self._dollar_rate = Dollers()._TON_USDT()
-
-
-    @staticmethod
-    def raw_to_UQ(raw: str) -> str:
-        try:
-            addr = Address(raw)
-            return addr.to_string(
-                is_user_friendly=True,
-                is_url_safe=True,
-                is_bounceable=False,
-                is_test_only=False
-            )
-        except Exception:
-            return raw
-
-
-    @staticmethod
-    def format_time(timestamp: int) -> str:
-        return datetime.datetime.fromtimestamp(
-            timestamp
-        ).strftime("%d %b %I:%M %p")
-
-    @staticmethod
-    def clean_comment(comment: str) -> str:
-        if not comment:
-            return ""
-
-        if "Ref#" in comment:
-            comment = comment.split("Ref#")[0]
-
-        return comment.strip()
-
-    def get(self, limit: int = 1) -> str:
-
-        url = f"{self.base_url}/accounts/{self.wallet}/events?limit={limit}"
-
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            data = response.json()
-
-            results: List[Dict[str, Any]] = []
-            counter = 1
-
-            for event in data.get("events", []):
-
-                actions = event.get("actions", [])
-
-
-                ton_transfers = [
-                    a for a in actions
-                    if a.get("type") == "TonTransfer"
-                ]
-
-                if not ton_transfers:
-                    continue
-
-                event_time = self.format_time(event["timestamp"])
-
-                for action in ton_transfers:
-
-                    transfer = action["TonTransfer"]
-
-                    amount = int(transfer["amount"]) / self.TON_DECIMALS
-                    usd_value = amount * self._dollar_rate
-
-                    sender = self.raw_to_UQ(
-                        transfer["sender"]["address"]
-                    )
-                    recipient = self.raw_to_UQ(
-                        transfer["recipient"]["address"]
-                    )
-
-                    action_type = (
-                        "Received TON"
-                        if recipient == self.wallet
-                        else "Sent TON"
-                    )
-
-                    comment = self.clean_comment(
-                        transfer.get("comment", "")
-                    )
-
-                    tx: Dict[str, Any] = {
-                        "Time": event_time,
-                        "Action": action_type,
-                        "From": sender,
-                        "To": recipient,
-                        "Paid For": comment if comment else None,
-                        "Price": (
-                            f"{'-' if action_type=='Sent TON' else '+'}"
-                            f"{amount:.3f} TON ≈ {usd_value:.5f} $"
-                        ),
-                        "Limit": str(counter)
-                    }
-                    counter += 1
-
-                    results.append(tx)
-
-
-
-            cleaned = [
-                {k: v for k, v in tx.items() if v is not None}
-                for tx in results
-            ]
-
-            skipped = limit - (counter - 1)
-
-            output = {
-                "transactions": cleaned,
-                "skipped": f"Skipped {skipped} NFT Transactions"
-            }
-
-            return json.dumps(output, indent=2, ensure_ascii=False)
-
-
-
-        except requests.RequestException:
-            return json.dumps(
-                {"error": "Failed to fetch transactions"},
-                indent=2
-            )
-
-
->>>>>>> 5b3efc31ef3ed657ce8ce337dcd5791f8e39f0f5

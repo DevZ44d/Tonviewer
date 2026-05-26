@@ -93,15 +93,6 @@ Fragment(
     "tonviewer":  "https://tonviewer.com/UQAh_cfG6nAD8EazS3dED8mtQo3bmeGn6nMM8TAZ-9h50k1D"
   },
   "purchased_at": "14 Mar 2024 at 7:59 PM",
-  "auction": {
-    "bids":         12,
-    "auction_ends": "2024-04-01 18:00 UTC",
-    "min_bid":      "200 TON"
-  },
-  "metadata": {
-    "collection": "Telegram Usernames",
-    "note":       "Owned since March 2024"
-  }
 }
 ```
 

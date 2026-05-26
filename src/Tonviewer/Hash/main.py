@@ -520,9 +520,3 @@ class EventResolver:
             indent=2,
             ensure_ascii=False,
         )
-
-if __name__ == "__main__":
-    x = EventResolver(
-        event_address="9c88f825a9f77bd0643b852dd73503c065fdd199788fd0740eac7d76b3abd5bf"
-    )
-    print(x.result())

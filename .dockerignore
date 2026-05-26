@@ -1,0 +1,68 @@
+# ─────────────────────────────────────────────
+#  Tonviewer — .dockerignore
+#  Excludes everything not needed in the image.
+# ─────────────────────────────────────────────
+
+# Python cache & bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# Distribution / packaging artefacts
+dist/
+build/
+*.egg-info/
+*.egg
+wheels/
+*.whl
+
+# Tests
+tests/
+test_*.py
+*_test.py
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# IDE / editor configs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.editorconfig
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI / CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# OS artefacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Secrets — never bake these in
+.env*
+*.env
+secrets/

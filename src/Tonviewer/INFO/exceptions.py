@@ -20,14 +20,14 @@ from __future__ import annotations
 
 class FragmentError(Exception):
     """
-    Base class for all Fragment scraper errors.
-    Catch this to handle any Fragment-related failure in one place.
+        Base class for all Fragment scraper errors.
+        Catch this to handle any Fragment-related failure in one place.
 
-    Example:
-        try:
-            result = await client.get_username("@monk")
-        except FragmentError as e:
-            print(f"Fragment error: {e}")
+        Example:
+            try:
+                result = await client.get_username("@monk")
+            except FragmentError as e:
+                print(f"Fragment error: {e}")
     """
 
 
